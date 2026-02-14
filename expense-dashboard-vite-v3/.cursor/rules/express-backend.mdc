@@ -1,0 +1,55 @@
+---
+description: Node.js + Express backend architecture, config, and file upload handling
+globs: "**/server.js", "**/app.js", "**/server/**", "**/backend/**", "**/routes/**", "**/controllers/**", "**/services/**", "**/config/**", "**/middleware/**", "**/uploads/**"
+alwaysApply: false
+---
+
+# Express Backend Conventions
+
+## Goal
+
+Generate Node.js + Express code with clean architecture, clear separation of concerns, and safe, organized file upload handling.
+
+## Directory layout
+
+Use a layered, modular structure under `src/`:
+
+- `app.js` or `server.js` — Express app setup and server bootstrap only (minimal logic)
+- `routes/` — Express routers; define endpoints and HTTP methods
+- `controllers/` — HTTP-level logic (req/res); call services; send status + JSON
+- `services/` — Business/domain logic (e.g. file upload, processing, validation); no req/res
+- `models/` — Data models/schemas (e.g. DB models) if needed
+- `middleware/` — Auth, validation, error handling, logging
+- `config/` — Configuration and environment variables
+- `utils/` — Helper and utility functions
+- `uploads/` — Directory for stored uploads (if using local disk)
+
+Do not put all logic in a single file.
+
+## Layer responsibilities
+
+- **app.js / server.js**: Configure Express, register middleware, attach routers, start the server. No business logic.
+- **Routes**: Define HTTP method and path (e.g. `POST /upload`), attach upload middleware (e.g. `multer.single('file')`).
+- **Controllers**: Receive req/res, check required data (file, params, body), call the appropriate service, send HTTP response (status + JSON).
+- **Services**: Contain core logic; must not depend on or receive `req`/`res`.
+
+## Config
+
+- Use a dedicated config module (e.g. `src/config/config.js`) to read environment variables and export values (PORT, DB_URL, UPLOAD_DIR, MAX_FILE_SIZE, etc.).
+- Use env vars for secrets, credentials, URLs, ports, and environment-specific settings.
+- Never hard-code secrets or credentials.
+- Avoid magic numbers/strings: use constants (e.g. `MAX_FILE_SIZE`, `ALLOWED_MIME_TYPES`) with clear names.
+
+## File upload
+
+- Use a proper middleware (e.g. **multer**) in the route; controller validates presence and calls the service; service performs validation, storage, and returns metadata.
+- **Service**: Validate file type (MIME) and size; generate a unique filename (e.g. UUID + original extension); save to the configured upload directory; return metadata (path/URL, size, MIME). Do not trust the client-provided filename.
+- **Storage**: Use a dedicated upload directory (e.g. `src/uploads/`). Store only metadata (path/URL, size, MIME) unless the user explicitly asks for raw binary in DB.
+- **Validation**: Enforce allowed MIME types and max file size. On failure: do not save; return a clear error and 400 (or appropriate status).
+- **Errors**: Use try/catch or error-handling middleware; clean up partially saved files on save failure; return meaningful error messages and correct status codes without leaking internal details.
+
+## Code style
+
+- Use ES modules (`import`/`export`) unless CommonJS is requested.
+- Put all required imports at the top.
+- Keep functions small and single-responsibility.
