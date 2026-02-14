@@ -1,7 +1,3 @@
-/**
- * In-memory category storage. Swap for file or DB later by keeping this interface.
- */
-
 const store = new Map();
 
 export function getAll() {
@@ -13,14 +9,15 @@ export function getById(id) {
 }
 
 export function create(category) {
-  store.set(category.id, category);
-  return category;
+  const item = { ...category, updatedAt: new Date().toISOString() };
+  store.set(category.id, item);
+  return item;
 }
 
 export function update(id, payload) {
   const existing = store.get(id);
   if (!existing) return null;
-  const updated = { ...existing, ...payload };
+  const updated = { ...existing, ...payload, updatedAt: new Date().toISOString() };
   store.set(id, updated);
   return updated;
 }
@@ -35,7 +32,8 @@ export function clear() {
 
 export function replaceAll(categories) {
   store.clear();
-  for (const c of categories) {
-    if (c && c.id) store.set(c.id, c);
+  const now = new Date().toISOString();
+  for (const c of categories || []) {
+    if (c && c.id) store.set(c.id, { ...c, updatedAt: now });
   }
 }

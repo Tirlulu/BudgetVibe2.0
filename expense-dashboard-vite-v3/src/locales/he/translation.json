@@ -1,0 +1,231 @@
+{
+  "nav": {
+    "finance": "כספים",
+    "dashboard": "לוח בקרה",
+    "categories": "קטגוריות",
+    "dataUpload": "העלאת נתונים",
+    "uncategorized": "ללא קטגוריה",
+    "fixedExpenses": "הוצאות קבועות",
+    "variableExpenses": "הוצאות משתנות",
+    "analytics": "אנליטיקה",
+    "settings": "הגדרות"
+  },
+  "aria": {
+    "openMenu": "פתח תפריט",
+    "closeMenu": "סגור תפריט"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "לוח בקרה",
+      "subtitle": "סיכום סה\"כ, הוצאות קבועות ומשתנות."
+    },
+    "categories": {
+      "title": "קטגוריות",
+      "subtitle": "נהל קטגוריות לסיווג תנועות."
+    },
+    "upload": {
+      "title": "העלאת נתונים",
+      "subtitle": "העלה דפי סיכום אשראי לייבוא תנועות."
+    },
+    "fixedExpenses": {
+      "title": "הוצאות חוזרות קבועות",
+      "subtitle": "אותו ספק, סכום זהה או דומה."
+    },
+    "variableExpenses": {
+      "title": "הוצאות חוזרות משתנות",
+      "subtitle": "אותו ספק, סכומים שונים לאורך זמן."
+    },
+    "analytics": {
+      "title": "אנליטיקה",
+      "subtitle": "סיכום לפי קטגוריה, זמן וכרטיס."
+    },
+    "categorize": {
+      "title": "תנועות ללא קטגוריה",
+      "subtitle": "הקצה קטגוריות לתנועות. Tab למעבר, Enter לשמירה."
+    }
+  },
+  "settings": {
+    "title": "הגדרות",
+    "subtitle": "ניהול אפליקציה ונתונים.",
+    "admin": "מנהל",
+    "deleteAllWarning": "פעולה זו תמחק לצמיתות את כל התנועות. השתמש לפני seed ייצור כדי להתחיל ממסד ריק.",
+    "typeToConfirm": "הקלד {{text}} להלן לאישור",
+    "deleteHint": "לא ניתן לבטל פעולה זו.",
+    "deleteAllTransactions": "מחק את כל התנועות",
+    "deleting": "מוחק…",
+    "deleteError": "מחיקת התנועות נכשלה.",
+    "categoryTemplate": "תבנית קטגוריות",
+    "categoryTemplateSubtitle": "רשימת קטגוריות ראשית ל-seed ואיפוס. ערוך קבוצות וקטגוריות ואז שמור.",
+    "saveTemplate": "שמור תבנית",
+    "templateSaved": "התבנית נשמרה.",
+    "addCategoryToGroup": "הוסף קטגוריה",
+    "addGroup": "הוסף קבוצה",
+    "groupNameHe": "שם קבוצה (עברית)",
+    "groupNameEn": "שם קבוצה (אנגלית)",
+    "categoryNameHe": "שם קטגוריה (עברית)",
+    "categoryNameEn": "שם קטגוריה (אנגלית)",
+    "resetData": "אפס נתונים מהתבנית",
+    "resetDataWarning": "פעולה זו תמחק את כל התנועות ותמלא מחדש קטגוריות מהתבנית למעלה.",
+    "resetting": "מאפס…",
+    "resetError": "איפוס הנתונים נכשל."
+  },
+  "categorizePage": {
+    "allCaughtUp": "הכל מסווג!",
+    "selectAll": "בחר הכל",
+    "setCategoryTo": "הגדר קטגוריה ל",
+    "applyToSelected": "החל על הנבחרים",
+    "noUncategorized": "אין תנועות ללא קטגוריה. העלה דפי סיכום או עבור להעלאת נתונים.",
+    "date": "תאריך",
+    "merchant": "ספק",
+    "amount": "סכום",
+    "card": "כרטיס",
+    "category": "קטגוריה",
+    "group": "קבוצה",
+    "chooseGroup": "בחר קבוצה…",
+    "otherCard": "אחר",
+    "expenseTypeLabel": "סוג הוצאה",
+    "expenseTypeFixed": "הוצאות קבועות",
+    "expenseTypeVariable": "הוצאות שוטפות",
+    "groupsAndCategories": "קבוצות וקטגוריות",
+    "newCategoryInGroup": "שם קטגוריה חדשה בקבוצה «{{group}}»",
+    "addCategoryToGroup": "הוסף קטגוריה לקבוצה {{group}}",
+    "addNewCategoryToGroup": "הוסף קטגוריה חדשה ל־\"{{group}}\"",
+    "createNewGroup": "צור קבוצה חדשה...",
+    "newGroupName": "שם קבוצה חדשה",
+    "firstCategoryName": "שם הקטגוריה הראשונה",
+    "addToGroup": "הוסף ל־{{group}}",
+    "newCategoryName": "שם קטגוריה",
+    "noCategoriesForType": "אין קטגוריות לסוג זה",
+    "ungrouped": "אחר",
+    "saving": "שומר…",
+    "remaining": "נותרו {{count}}"
+  },
+  "upload": {
+    "uploadFile": "העלאת קובץ",
+    "uploading": "מעלה…",
+    "success": "ההעלאה הצליחה.",
+    "categorizeRemaining": "סווג נותרו ({{count}})",
+    "importSummary": "סיכום ייבוא",
+    "totalTransactions": "סה\"כ תנועות",
+    "autoCategorized": "סווגו אוטומטית",
+    "needCategory": "דורשות סיווג",
+    "messageNeedCategory": "יש {{count}} תנועות שטרם סווגו.",
+    "messageAllAssigned": "כל התנועות סווגו."
+  },
+  "categories": {
+    "show": "הצג",
+    "all": "הכל",
+    "activeOnly": "פעילים בלבד",
+    "inactiveOnly": "לא פעילים בלבד",
+    "name": "שם",
+    "group": "קבוצה",
+    "color": "צבע",
+    "icon": "אייקון",
+    "active": "פעיל",
+    "actions": "פעולות",
+    "inactive": "לא פעיל",
+    "on": "פעיל",
+    "off": "כבוי",
+    "edit": "עריכה",
+    "delete": "מחיקה",
+    "addCategory": "הוסף קטגוריה",
+    "categoryNamePlaceholder": "שם קטגוריה (חובה)",
+    "newGroupName": "שם קבוצה חדשה",
+    "other": "אחר…"
+  },
+  "editCategory": {
+    "title": "עריכת קטגוריה",
+    "nameRequired": "שם (חובה)",
+    "categoryNamePlaceholder": "שם קטגוריה",
+    "save": "שמור",
+    "saving": "שומר…",
+    "cancel": "ביטול",
+    "ariaClose": "סגור"
+  },
+  "uncategorized": {
+    "title": "סיווג תנועות",
+    "progress": "סיווגת {{resolved}} מתוך {{total}} (נותרו {{remaining}}).",
+    "onlyLeft": "נשארו רק {{count}}!",
+    "allDone": "הסתיים. אפשר לסגור את החלון.",
+    "chooseCategory": "בחר קטגוריה…",
+    "assign": "הקצה",
+    "ariaClose": "סגור"
+  },
+  "filters": {
+    "card": "כרטיס",
+    "allCards": "כל הכרטיסים",
+    "from": "מ",
+    "to": "עד",
+    "category": "קטגוריה",
+    "all": "הכל",
+    "clearFilters": "נקה מסננים"
+  },
+  "expenses": {
+    "merchant": "ספק",
+    "category": "קטגוריה",
+    "amount": "סכום",
+    "frequency": "תדירות",
+    "creditCard": "כרטיס אשראי",
+    "lastCharge": "חיוב אחרון",
+    "count": "כמות",
+    "avgAmount": "סכום ממוצע",
+    "min": "מינ׳",
+    "max": "מקס׳",
+    "lastAmount": "סכום אחרון",
+    "trend": "מגמה"
+  },
+  "analytics": {
+    "summaryByCategory": "סיכום לפי קטגוריה",
+    "total": "סה\"כ",
+    "average": "ממוצע",
+    "count": "כמות",
+    "expensesByCategory": "הוצאות לפי קטגוריה",
+    "expensesOverTime": "הוצאות לאורך זמן",
+    "noCategoryData": "אין נתוני קטגוריות",
+    "noTimeSeriesData": "אין נתוני סדרת זמן"
+  },
+  "empty": {
+    "noRecurringExpenses": "אין הוצאות חוזרות בתקופה זו. נסה לשנות מסננים או להעלות נתונים.",
+    "noCategoriesMatch": "אין קטגוריות התואמות את המסנן. הוסף למעלה או שנה מסנן.",
+    "noAnalyticsData": "עדיין אין נתוני אנליטיקה. העלה דפי סיכום וסווג תנועות.",
+    "noDataImported": "טרם יובאו נתונים. בחר קובץ למעלה לייבוא הדף הראשון."
+  },
+  "common": {
+    "tryAgain": "נסה שוב",
+    "somethingWrong": "משהו השתבש",
+    "loading": "טוען…",
+    "delete": "מחק"
+  },
+  "dashboard": {
+    "total": "סה\"כ",
+    "fixed": "קבוע",
+    "variable": "משתנה",
+    "ofTotal": "מהסה\"כ",
+    "fixedVsVariable": "קבוע מול משתנה",
+    "uncategorizedAlert": "יש לך {{count}} פריטים לסיווג.",
+    "goToCategorize": "עבור לסיווג",
+    "backToDashboard": "חזרה ללוח הבקרה",
+    "noData": "עדיין אין נתוני הוצאות. העלה וסווג תנועות כדי לראות את הלוח."
+  },
+  "dataStatus": {
+    "saved": "נשמר",
+    "lastUpdatedMins": "עודכן לפני {{count}} דק׳",
+    "lastUpdatedHours": "עודכן לפני {{count}} ש׳",
+    "inMemory": "בזיכרון",
+    "offline": "מנותק",
+    "checking": "בודק…"
+  },
+  "errors": {
+    "generic": "משהו השתבש.",
+    "uploadFailed": "ההעלאה נכשלה",
+    "importServiceUnavailable": "שירות הייבוא לא זמין. ודא שהשרת רץ.",
+    "nameRequired": "נדרש שם.",
+    "failedToSave": "השמירה נכשלה.",
+    "failedToAssign": "ההקצאה לקטגוריה נכשלה"
+  },
+  "languageSwitcher": {
+    "he": "עב",
+    "en": "EN",
+    "ariaLabel": "החלף שפה"
+  }
+}

@@ -1,121 +1,88 @@
 import React, { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { postImportCreditCard } from '../services/importService.js';
-import { getCategories } from '../services/categoriesService.js';
 import ImportSummary from '../components/ImportSummary.jsx';
-import UncategorizedPopup from '../components/UncategorizedPopup.jsx';
+import PageHeader from '../components/PageHeader.jsx';
+import EmptyState from '../components/EmptyState.jsx';
+import { Card, Button } from '../ui/index.js';
 
 export default function DataUploadPage() {
+  const { t } = useTranslation();
   const [importResult, setImportResult] = useState(null);
   const [uploadError, setUploadError] = useState(null);
   const [uploading, setUploading] = useState(false);
-  const [showUncategorizedPopup, setShowUncategorizedPopup] = useState(false);
-  const [categories, setCategories] = useState([]);
-  const [remainingNeedsCategory, setRemainingNeedsCategory] = useState(null);
-  const [remainingUncategorizedList, setRemainingUncategorizedList] = useState(null);
 
   const totalTransactions = importResult?.totalTransactions ?? 0;
   const autoCategorizedCount = importResult?.autoCategorizedCount ?? 0;
   const needsCategoryCount =
-    remainingNeedsCategory !== null
-      ? remainingNeedsCategory
-      : (importResult?.needsCategoryCount ?? importResult?.needsCategory?.length ?? 0);
-  const needsCategoryList = remainingUncategorizedList ?? importResult?.needsCategory ?? [];
+    importResult?.needsCategoryCount ?? importResult?.needsCategory?.length ?? 0;
 
-  const handleFileChange = useCallback(async (e) => {
-    const files = e.target.files;
-    if (!files?.length) return;
-    setUploadError(null);
-    setImportResult(null);
-    setRemainingNeedsCategory(null);
-    setRemainingUncategorizedList(null);
-    setUploading(true);
-    try {
-      const formData = new FormData();
-      for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i]);
+  const handleFileChange = useCallback(
+    async (e) => {
+      const files = e.target.files;
+      if (!files?.length) return;
+      setUploadError(null);
+      setImportResult(null);
+      setUploading(true);
+      try {
+        const formData = new FormData();
+        for (let i = 0; i < files.length; i++) {
+          formData.append('files', files[i]);
+        }
+        const result = await postImportCreditCard(formData);
+        setImportResult(result);
+        window.dispatchEvent(new CustomEvent('expenses-refresh'));
+      } catch (err) {
+        const message =
+          err?.status === 404
+            ? t('errors.importServiceUnavailable')
+            : err?.message || t('errors.uploadFailed');
+        setUploadError(message);
+      } finally {
+        setUploading(false);
+        e.target.value = '';
       }
-      const result = await postImportCreditCard(formData);
-      setImportResult(result);
-      window.dispatchEvent(new CustomEvent('expenses-refresh'));
-      const list = result?.needsCategory ?? [];
-      if (list.length > 0) {
-        const cats = await getCategories();
-        setCategories(Array.isArray(cats) ? cats : []);
-        setShowUncategorizedPopup(true);
-      }
-    } catch (err) {
-      const message =
-        err?.status === 404
-          ? 'Import service not available. Make sure the backend is running (e.g. run `npm run server` in the project root).'
-          : err?.message || 'Upload failed';
-      setUploadError(message);
-    } finally {
-      setUploading(false);
-      e.target.value = '';
-    }
-  }, []);
-
-  const handleClosePopup = useCallback((remainingCount, remainingList) => {
-    setShowUncategorizedPopup(false);
-    setRemainingNeedsCategory(remainingCount);
-    setRemainingUncategorizedList(Array.isArray(remainingList) ? remainingList : null);
-  }, []);
-
-  const handleResolved = useCallback(() => {
-    setRemainingNeedsCategory(0);
-  }, []);
-
-  const openCategorizePopup = useCallback(async () => {
-    if (needsCategoryList.length > 0 && categories.length === 0) {
-      const cats = await getCategories();
-      setCategories(Array.isArray(cats) ? cats : []);
-    }
-    setShowUncategorizedPopup(true);
-  }, [needsCategoryList.length, categories.length]);
+    },
+    [t]
+  );
 
   return (
     <div className="page data-upload-page">
-      <h1>Data upload</h1>
-      <p className="muted">Upload credit card statements to import transactions.</p>
+      <PageHeader title={t('pages.upload.title')} subtitle={t('pages.upload.subtitle')} />
 
-      <div className="card">
-        <h3>Upload file</h3>
+      <Card className="mb-6">
+        <h3 className="mb-3 text-base font-semibold text-slate-800">{t('upload.uploadFile')}</h3>
         <input
           type="file"
           accept=".xlsx,.xls,.csv"
           multiple
           onChange={handleFileChange}
           disabled={uploading}
+          className="text-slate-700"
         />
-        {uploading && <p className="muted">Uploading…</p>}
-        {uploadError && <p className="upload-err">{uploadError}</p>}
-      </div>
+        {uploading && <p className="mt-2 text-sm text-slate-500">{t('upload.uploading')}</p>}
+        {uploadError && <p className="mt-2 text-sm text-red-500">{uploadError}</p>}
+      </Card>
+
+      {!importResult && !uploading && !uploadError && (
+        <EmptyState icon="📤" message={t('empty.noDataImported')} />
+      )}
 
       {importResult && (
-        <>
-          <p className="upload-ok">Upload successful.</p>
+        <Card className="mt-6">
+          <p className="upload-ok mb-4">{t('upload.success')}</p>
           <ImportSummary
             totalTransactions={totalTransactions}
             autoCategorizedCount={autoCategorizedCount}
             needsCategoryCount={needsCategoryCount}
           />
-          {needsCategoryCount > 0 && (
-            <p>
-              <button type="button" className="primary" onClick={openCategorizePopup}>
-                Categorize remaining ({needsCategoryCount})
-              </button>
-            </p>
-          )}
-        </>
-      )}
-
-      {showUncategorizedPopup && (
-        <UncategorizedPopup
-          transactions={needsCategoryList}
-          categories={categories}
-          onResolved={handleResolved}
-          onClose={handleClosePopup}
-        />
+          <p className="mt-4">
+            <Link to="/categorize">
+              <Button>{t('dashboard.goToCategorize')}</Button>
+            </Link>
+          </p>
+        </Card>
       )}
     </div>
   );

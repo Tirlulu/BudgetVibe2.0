@@ -15,6 +15,12 @@ npm run dev
 ```
 פתח את http://localhost:5173 והעלה את קבצי האשראי + קובץ הקטגוריות.
 
+## Production seed (wipe data)
+To clear all transactions before uploading real data: use **Settings → Delete all transactions** in the app, or from the `server` directory run:
+```bash
+npm run clear-transactions
+```
+
 ## הערות
 - כללי המשתמש נשמרים בדפדפן (LocalStorage). בפתרון שרת – החלף לשמירה ב־DB.
 - הפרסר מניח דוחות עם כותרות בעברית בסגנון שהצגת. אם יש הבדלי פורמט – נעדכן את מאתר הכותרת/עמודות.

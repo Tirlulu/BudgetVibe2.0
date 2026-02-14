@@ -2,7 +2,7 @@
  * Aggregate transactions into fixed vs variable recurring expenses.
  */
 
-import * as transactionStorage from '../storage/transactionStorage.js';
+import { transactionStorage } from '../storage/index.js';
 import * as categoryService from './categoryService.js';
 
 const AMOUNT_TOLERANCE_RATIO = 0.05; // 5% variance => fixed

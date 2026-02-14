@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { assignCategory } from '../services/importService.js';
+import ImportTable from './ImportTable.jsx';
 
 /**
  * Modal to categorize uncategorized transactions. Tracks progress (resolvedCount, remaining)
@@ -12,6 +14,7 @@ export default function UncategorizedPopup({
   onResolved,
   onClose,
 }) {
+  const { t } = useTranslation();
   const [transactions, setTransactions] = useState(() => [...(initialTransactions || [])]);
   const [assigningId, setAssigningId] = useState(null);
   const [error, setError] = useState(null);
@@ -35,12 +38,12 @@ export default function UncategorizedPopup({
         await assignCategory(transactionId, categoryId);
         setTransactions((prev) => prev.filter((t) => t?.id !== transactionId));
       } catch (err) {
-        setError(err?.message || 'Failed to assign category');
+        setError(err?.message || t('errors.failedToAssign'));
       } finally {
         setAssigningId(null);
       }
     },
-    []
+    [t],
   );
 
   const handleClose = useCallback(() => {
@@ -57,20 +60,33 @@ export default function UncategorizedPopup({
 
   const isAlmostDone = remaining > 0 && remaining <= 3;
 
+  useEffect(() => {
+    function onKeyDown(e) {
+      if (e.key === 'Escape') handleClose();
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [handleClose]);
+
   return (
-    <div className="popup-overlay" role="dialog" aria-modal="true" aria-labelledby="uncategorized-popup-title">
-      <div className="popup uncategorized-popup">
+    <div
+      className="popup-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="uncategorized-popup-title"
+      onClick={(e) => e.target === e.currentTarget && handleClose()}
+    >
+      <div className="popup uncategorized-popup" onClick={(e) => e.stopPropagation()}>
         <div className="popup-header">
-          <h2 id="uncategorized-popup-title">Categorize transactions</h2>
-          <button type="button" className="popup-close" onClick={handleClose} aria-label="Close">
+          <h2 id="uncategorized-popup-title">{t('uncategorized.title')}</h2>
+          <button type="button" className="popup-close" onClick={handleClose} aria-label={t('uncategorized.ariaClose')}>
             ×
           </button>
         </div>
 
         <div className="uncategorized-progress">
           <p className="uncategorized-progress-text">
-            You have categorized <strong>{resolvedCount}</strong> out of <strong>{totalToCategorize}</strong> transactions
-            (<strong>{remaining}</strong> remaining).
+            {t('uncategorized.progress', { resolved: resolvedCount, total: totalToCategorize, remaining })}
           </p>
           {totalToCategorize > 0 && (
             <div className="progress-bar-wrap">
@@ -81,79 +97,21 @@ export default function UncategorizedPopup({
             </div>
           )}
           {isAlmostDone && (
-            <p className="uncategorized-almost-done">Only {remaining} left!</p>
+            <p className="uncategorized-almost-done">{t('uncategorized.onlyLeft', { count: remaining })}</p>
           )}
         </div>
 
         {error && <p className="upload-err">{error}</p>}
 
-        <div className="uncategorized-list-wrap">
-          {remaining === 0 ? (
-            <p className="muted">All done. You can close this window.</p>
-          ) : (
-            <ul className="uncategorized-list">
-              {transactions.map((tx) => (
-                <UncategorizedRow
-                  key={tx?.id}
-                  transaction={tx}
-                  categories={categories}
-                  onAssign={handleAssign}
-                  isAssigning={assigningId === tx?.id}
-                />
-              ))}
-            </ul>
-          )}
+        <div className="uncategorized-list-wrap mt-3">
+          <ImportTable
+            transactions={transactions}
+            categories={categories}
+            onAssign={handleAssign}
+            assigningId={assigningId}
+          />
         </div>
       </div>
     </div>
-  );
-}
-
-function UncategorizedRow({ transaction, categories, onAssign, isAssigning }) {
-  const [selectedCategoryId, setSelectedCategoryId] = useState('');
-  const id = transaction?.id;
-  const label =
-    transaction?.merchantName ||
-    transaction?.merchant ||
-    transaction?.description ||
-    transaction?.name ||
-    `Transaction ${id?.slice(0, 8) || '?'}`;
-  const amount = transaction?.amount ?? transaction?.amountCharge ?? transaction?.sum;
-  const date = transaction?.date ?? transaction?.purchaseDate;
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    if (selectedCategoryId && typeof onAssign === 'function') {
-      onAssign(id, selectedCategoryId);
-      setSelectedCategoryId('');
-    }
-  }
-
-  return (
-    <li className="uncategorized-row">
-      <div className="uncategorized-row-info">
-        <span className="uncategorized-row-label">{label}</span>
-        {amount != null && <span className="uncategorized-row-amount">{String(amount)}</span>}
-        {date != null && <span className="uncategorized-row-date">{String(date)}</span>}
-      </div>
-      <form onSubmit={handleSubmit} className="uncategorized-row-form flex">
-        <select
-          value={selectedCategoryId}
-          onChange={(e) => setSelectedCategoryId(e.target.value)}
-          disabled={isAssigning}
-          required
-        >
-          <option value="">Choose category…</option>
-          {(categories || []).filter((c) => c?.isActive !== false).map((c) => (
-            <option key={c?.id} value={c?.id}>
-              {c?.name ?? c?.id}
-            </option>
-          ))}
-        </select>
-        <button type="submit" className="primary" disabled={isAssigning || !selectedCategoryId}>
-          {isAssigning ? '…' : 'Assign'}
-        </button>
-      </form>
-    </li>
   );
 }

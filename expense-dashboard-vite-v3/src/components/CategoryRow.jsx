@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import DynamicIcon from './DynamicIcon.jsx';
 
 const ICON_KEYS = [
   'home', 'wifi', 'phone_iphone', 'tv', 'shopping_cart', 'restaurant',
@@ -7,33 +9,12 @@ const ICON_KEYS = [
 ];
 
 function CategoryIcon({ iconKey }) {
-  const name = iconKey && ICON_KEYS.includes(iconKey) ? iconKey : 'label';
-  return <span className="material-icons category-row-icon" aria-hidden>{name}</span>;
+  return <DynamicIcon name={iconKey || undefined} size={20} className="category-row-icon" />;
 }
 
-export default function CategoryRow({ category, onToggleActive, onEdit, onDelete }) {
-  const [editing, setEditing] = useState(false);
-  const [editColor, setEditColor] = useState(category?.color ?? '#999');
-  const [editIconKey, setEditIconKey] = useState(category?.iconKey ?? 'label');
-
+export default function CategoryRow({ category, onToggleActive, onEditClick, onDelete }) {
+  const { t } = useTranslation();
   const isActive = category?.isActive !== false;
-
-  function startEdit() {
-    setEditColor(category?.color ?? '#999');
-    setEditIconKey(category?.iconKey ?? 'label');
-    setEditing(true);
-  }
-
-  function cancelEdit() {
-    setEditing(false);
-  }
-
-  async function saveEdit() {
-    if (typeof onEdit === 'function') {
-      await onEdit(category?.id, { color: editColor, iconKey: editIconKey });
-    }
-    setEditing(false);
-  }
 
   function handleToggle() {
     if (typeof onToggleActive === 'function') {
@@ -45,40 +26,18 @@ export default function CategoryRow({ category, onToggleActive, onEdit, onDelete
     <tr className={!isActive ? 'category-row-inactive' : ''}>
       <td>
         <span className="category-row-name">{category?.name ?? '—'}</span>
-        {!isActive && <span className="badge category-badge-inactive">inactive</span>}
+        {!isActive && <span className="badge category-badge-inactive">{t('categories.inactive')}</span>}
       </td>
       <td>{category?.group ?? '—'}</td>
       <td>
-        {editing ? (
-          <input
-            type="color"
-            value={editColor}
-            onChange={(e) => setEditColor(e.target.value)}
-            className="category-color-input"
-            title="Color"
-          />
-        ) : (
-          <span
-            className="color-pill"
-            style={{ backgroundColor: category?.color || '#666' }}
-            title={category?.color}
-          />
-        )}
+        <span
+          className="color-pill"
+          style={{ backgroundColor: category?.color || '#666' }}
+          title={category?.color}
+        />
       </td>
       <td>
-        {editing ? (
-          <select
-            value={editIconKey}
-            onChange={(e) => setEditIconKey(e.target.value)}
-            className="category-icon-select"
-          >
-            {ICON_KEYS.map((key) => (
-              <option key={key} value={key}>{key}</option>
-            ))}
-          </select>
-        ) : (
-          <CategoryIcon iconKey={category?.iconKey} />
-        )}
+        <CategoryIcon iconKey={category?.iconKey} />
       </td>
       <td>
         <label className="category-toggle-label">
@@ -88,21 +47,16 @@ export default function CategoryRow({ category, onToggleActive, onEdit, onDelete
             onChange={handleToggle}
             className="category-toggle"
           />
-          <span className="category-toggle-text">{isActive ? 'On' : 'Off'}</span>
+          <span className="category-toggle-text">{isActive ? t('categories.on') : t('categories.off')}</span>
         </label>
       </td>
       <td>
-        {editing ? (
-          <>
-            <button type="button" className="primary" onClick={saveEdit}>Save</button>
-            <button type="button" onClick={cancelEdit}>Cancel</button>
-          </>
-        ) : (
-          <>
-            <button type="button" onClick={startEdit}>Edit</button>
-            <button type="button" onClick={() => typeof onDelete === 'function' && onDelete(category?.id)}>Delete</button>
-          </>
-        )}
+        <button type="button" onClick={() => typeof onEditClick === 'function' && onEditClick(category)}>
+          {t('categories.edit')}
+        </button>
+        <button type="button" onClick={() => typeof onDelete === 'function' && onDelete(category?.id)}>
+          {t('categories.delete')}
+        </button>
       </td>
     </tr>
   );

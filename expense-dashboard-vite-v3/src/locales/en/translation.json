@@ -1,0 +1,231 @@
+{
+  "nav": {
+    "finance": "Finance",
+    "dashboard": "Dashboard",
+    "categories": "Categories",
+    "dataUpload": "Data upload",
+    "uncategorized": "Uncategorized",
+    "fixedExpenses": "Fixed expenses",
+    "variableExpenses": "Variable expenses",
+    "analytics": "Analytics",
+    "settings": "Settings"
+  },
+  "aria": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "pages": {
+    "dashboard": {
+      "title": "Dashboard",
+      "subtitle": "Overview of total, fixed, and variable expenses."
+    },
+    "categories": {
+      "title": "Categories",
+      "subtitle": "Manage main categories used to classify transactions."
+    },
+    "upload": {
+      "title": "Data upload",
+      "subtitle": "Upload credit card statements to import transactions."
+    },
+    "fixedExpenses": {
+      "title": "Fixed recurring expenses",
+      "subtitle": "Same merchant, same or very similar amount."
+    },
+    "variableExpenses": {
+      "title": "Variable recurring expenses",
+      "subtitle": "Same merchant, different amounts over time."
+    },
+    "analytics": {
+      "title": "Analytics",
+      "subtitle": "Overview by category, time, and card."
+    },
+    "categorize": {
+      "title": "Uncategorized transactions",
+      "subtitle": "Assign categories to transactions. Use Tab to move, Enter to save."
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Application and data management.",
+    "admin": "Admin",
+    "deleteAllWarning": "This will permanently delete all transactions. Use this before a production seed to start from an empty database.",
+    "typeToConfirm": "Type {{text}} below to confirm",
+    "deleteHint": "This action cannot be undone.",
+    "deleteAllTransactions": "Delete all transactions",
+    "deleting": "Deleting…",
+    "deleteError": "Failed to delete transactions.",
+    "categoryTemplate": "Category template",
+    "categoryTemplateSubtitle": "Master category list used for seeding and reset. Edit groups and categories, then save.",
+    "saveTemplate": "Save template",
+    "templateSaved": "Template saved.",
+    "addCategoryToGroup": "Add category",
+    "addGroup": "Add group",
+    "groupNameHe": "Group name (Hebrew)",
+    "groupNameEn": "Group name (English)",
+    "categoryNameHe": "Category name (Hebrew)",
+    "categoryNameEn": "Category name (English)",
+    "resetData": "Reset data from template",
+    "resetDataWarning": "This will delete all transactions and repopulate categories from the template above.",
+    "resetting": "Resetting…",
+    "resetError": "Failed to reset data."
+  },
+  "categorizePage": {
+    "allCaughtUp": "All caught up!",
+    "selectAll": "Select all",
+    "setCategoryTo": "Set category to",
+    "applyToSelected": "Apply to selected",
+    "noUncategorized": "No uncategorized transactions. Upload statements or go to Data upload.",
+    "date": "Date",
+    "merchant": "Merchant",
+    "amount": "Amount",
+    "card": "Card",
+    "category": "Category",
+    "group": "Group",
+    "chooseGroup": "Choose group…",
+    "otherCard": "Other",
+    "expenseTypeLabel": "Expense type",
+    "expenseTypeFixed": "Fixed",
+    "expenseTypeVariable": "Variable",
+    "groupsAndCategories": "Groups and categories",
+    "newCategoryInGroup": "New category name in group «{{group}}»",
+    "addCategoryToGroup": "Add category to group {{group}}",
+    "addNewCategoryToGroup": "Add new category to \"{{group}}\"",
+    "createNewGroup": "Create New Group...",
+    "newGroupName": "New Group Name",
+    "firstCategoryName": "First Category Name",
+    "addToGroup": "Add to {{group}}",
+    "newCategoryName": "Category name",
+    "noCategoriesForType": "No categories for this type",
+    "ungrouped": "Other",
+    "saving": "Saving…",
+    "remaining": "{{count}} remaining"
+  },
+  "upload": {
+    "uploadFile": "Upload file",
+    "uploading": "Uploading…",
+    "success": "Upload successful.",
+    "categorizeRemaining": "Categorize remaining ({{count}})",
+    "importSummary": "Import summary",
+    "totalTransactions": "Total transactions",
+    "autoCategorized": "Auto-categorized",
+    "needCategory": "Need category",
+    "messageNeedCategory": "There are {{count}} transaction(s) that still need a category.",
+    "messageAllAssigned": "All transactions have been assigned a category."
+  },
+  "categories": {
+    "show": "Show",
+    "all": "All",
+    "activeOnly": "Active only",
+    "inactiveOnly": "Inactive only",
+    "name": "Name",
+    "group": "Group",
+    "color": "Color",
+    "icon": "Icon",
+    "active": "Active",
+    "actions": "Actions",
+    "inactive": "inactive",
+    "on": "On",
+    "off": "Off",
+    "edit": "Edit",
+    "delete": "Delete",
+    "addCategory": "Add category",
+    "categoryNamePlaceholder": "Category name (required)",
+    "newGroupName": "New group name",
+    "other": "Other…"
+  },
+  "editCategory": {
+    "title": "Edit category",
+    "nameRequired": "Name (required)",
+    "categoryNamePlaceholder": "Category name",
+    "save": "Save",
+    "saving": "Saving…",
+    "cancel": "Cancel",
+    "ariaClose": "Close"
+  },
+  "uncategorized": {
+    "title": "Categorize transactions",
+    "progress": "You have categorized {{resolved}} out of {{total}} ({{remaining}} remaining).",
+    "onlyLeft": "Only {{count}} left!",
+    "allDone": "All done. You can close this window.",
+    "chooseCategory": "Choose category…",
+    "assign": "Assign",
+    "ariaClose": "Close"
+  },
+  "filters": {
+    "card": "Card",
+    "allCards": "All cards",
+    "from": "From",
+    "to": "To",
+    "category": "Category",
+    "all": "All",
+    "clearFilters": "Clear filters"
+  },
+  "expenses": {
+    "merchant": "Merchant",
+    "category": "Category",
+    "amount": "Amount",
+    "frequency": "Frequency",
+    "creditCard": "Credit card",
+    "lastCharge": "Last charge",
+    "count": "Count",
+    "avgAmount": "Avg amount",
+    "min": "Min",
+    "max": "Max",
+    "lastAmount": "Last amount",
+    "trend": "Trend"
+  },
+  "analytics": {
+    "summaryByCategory": "Summary by category",
+    "total": "Total",
+    "average": "Average",
+    "count": "Count",
+    "expensesByCategory": "Expenses by category",
+    "expensesOverTime": "Expenses over time",
+    "noCategoryData": "No category data",
+    "noTimeSeriesData": "No time-series data"
+  },
+  "empty": {
+    "noRecurringExpenses": "No recurring expenses in this period. Try adjusting filters or upload more data.",
+    "noCategoriesMatch": "No categories match the filter. Add one above or change the filter.",
+    "noAnalyticsData": "No analytics data yet. Upload statements and categorize transactions to see charts.",
+    "noDataImported": "No data imported yet. Choose a file above to import your first statement."
+  },
+  "common": {
+    "tryAgain": "Try again",
+    "somethingWrong": "Something went wrong",
+    "loading": "Loading…",
+    "delete": "Delete"
+  },
+  "dashboard": {
+    "total": "Total",
+    "fixed": "Fixed",
+    "variable": "Variable",
+    "ofTotal": "of total",
+    "fixedVsVariable": "Fixed vs Variable",
+    "uncategorizedAlert": "You have {{count}} item(s) to classify.",
+    "goToCategorize": "Go to Categorization",
+    "backToDashboard": "Back to Dashboard",
+    "noData": "No expense data yet. Upload and categorize transactions to see the dashboard."
+  },
+  "dataStatus": {
+    "saved": "Saved",
+    "lastUpdatedMins": "Last updated: {{count}} min ago",
+    "lastUpdatedHours": "Last updated: {{count}} hr ago",
+    "inMemory": "In-memory",
+    "offline": "Offline",
+    "checking": "Checking…"
+  },
+  "errors": {
+    "generic": "Something went wrong.",
+    "uploadFailed": "Upload failed",
+    "importServiceUnavailable": "Import service not available. Make sure the backend is running (e.g. run `npm run server` in the project root).",
+    "nameRequired": "Name is required.",
+    "failedToSave": "Failed to save.",
+    "failedToAssign": "Failed to assign category"
+  },
+  "languageSwitcher": {
+    "he": "עב",
+    "en": "EN",
+    "ariaLabel": "Switch language"
+  }
+}

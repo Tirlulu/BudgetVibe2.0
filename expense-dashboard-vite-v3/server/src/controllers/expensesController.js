@@ -2,15 +2,13 @@ import * as expensesService from '../services/expensesService.js';
 
 export function getRecurring(req, res) {
   try {
-    const type = (req.query.type || 'fixed').toLowerCase();
-    if (type !== 'fixed' && type !== 'variable') {
-      return res.status(400).json({ message: 'type must be fixed or variable' });
-    }
+    const query = req.validated?.query ?? req.query;
+    const type = (query.type || 'fixed').toLowerCase();
     const filters = {
-      card: req.query.card || undefined,
-      from: req.query.from || undefined,
-      to: req.query.to || undefined,
-      category: req.query.category || undefined,
+      card: query.card || undefined,
+      from: query.from || undefined,
+      to: query.to || undefined,
+      category: query.category || undefined,
     };
     const data = expensesService.getRecurring(type, filters);
     res.json(data);

@@ -1,51 +1,57 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import EmptyState from './EmptyState.jsx';
 
 /**
  * Generic table for fixed or variable recurring expenses.
  * rows: array of expense objects; columns: which keys to show.
  */
-
 export default function ExpensesTable({ type, rows, columns }) {
+  const { t } = useTranslation();
   const safeRows = Array.isArray(rows) ? rows : [];
   const safeCols = Array.isArray(columns) ? columns : [];
   if (!safeRows.length) {
-    return <p className="muted">No recurring expenses in this period.</p>;
+    return (
+      <EmptyState icon="📊" message={t('empty.noRecurringExpenses')} />
+    );
   }
 
   const labels = {
-    merchant: 'Merchant',
-    category: 'Category',
-    amount: 'Amount',
-    frequency: 'Frequency',
-    card: 'Credit card',
-    lastChargeDate: 'Last charge',
-    count: 'Count',
-    averageAmount: 'Avg amount',
-    minAmount: 'Min',
-    maxAmount: 'Max',
-    lastAmount: 'Last amount',
-    trend: 'Trend',
+    merchant: t('expenses.merchant'),
+    category: t('expenses.category'),
+    amount: t('expenses.amount'),
+    frequency: t('expenses.frequency'),
+    card: t('expenses.creditCard'),
+    lastChargeDate: t('expenses.lastCharge'),
+    count: t('expenses.count'),
+    averageAmount: t('expenses.avgAmount'),
+    minAmount: t('expenses.min'),
+    maxAmount: t('expenses.max'),
+    lastAmount: t('expenses.lastAmount'),
+    trend: t('expenses.trend'),
   };
 
   return (
-    <table className="table">
-      <thead>
-        <tr>
-          {safeCols.map((col) => (
-            <th key={col}>{labels[col] ?? col}</th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {safeRows.map((row, i) => (
-          <tr key={row?.merchant ?? i}>
+    <div className="overflow-x-auto -mx-1">
+      <table className="table min-w-[600px]">
+        <thead>
+          <tr>
             {safeCols.map((col) => (
-              <td key={col}>{formatCell(row[col], col)}</td>
+              <th key={col}>{labels[col] ?? col}</th>
             ))}
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {safeRows.map((row, i) => (
+            <tr key={row?.merchant ?? i}>
+              {safeCols.map((col) => (
+                <td key={col}>{formatCell(row[col], col)}</td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

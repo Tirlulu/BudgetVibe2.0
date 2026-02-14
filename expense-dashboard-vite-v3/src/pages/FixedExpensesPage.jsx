@@ -1,6 +1,9 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import ExpensesTable from '../components/ExpensesTable.jsx';
 import FiltersBar from '../components/FiltersBar.jsx';
+import PageHeader from '../components/PageHeader.jsx';
+import TableSkeleton from '../components/TableSkeleton.jsx';
 import { useRecurringExpenses } from '../hooks/useRecurringExpenses.js';
 
 function mapFixedRows(items) {
@@ -18,18 +21,18 @@ function mapFixedRows(items) {
 }
 
 export default function FixedExpensesPage() {
+  const { t } = useTranslation();
   const [filters, setFilters] = useState({});
   const { items, isLoading, error } = useRecurringExpenses('fixed', filters);
   const rows = useMemo(() => mapFixedRows(items), [items]);
 
   return (
     <div className="page fixed-expenses-page">
-      <h1>Fixed recurring expenses</h1>
-      <p className="muted">Same merchant, same or very similar amount.</p>
+      <PageHeader title={t('pages.fixedExpenses.title')} subtitle={t('pages.fixedExpenses.subtitle')} />
       <FiltersBar filters={filters} onChange={setFilters} />
       {error && <p className="upload-err">{error}</p>}
       {isLoading ? (
-        <p className="muted">Loading…</p>
+        <TableSkeleton rows={8} columns={6} />
       ) : (
         <ExpensesTable
           type="fixed"

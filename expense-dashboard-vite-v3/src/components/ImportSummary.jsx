@@ -1,4 +1,6 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import { Card } from '../ui/index.js';
 
 /**
  * Displays upload result: totalTransactions, autoCategorizedCount, needsCategoryCount,
@@ -10,30 +12,31 @@ export default function ImportSummary({
   needsCategoryCount = 0,
   message,
 }) {
+  const { t } = useTranslation();
   const displayMessage =
     message != null
       ? message
       : needsCategoryCount > 0
-        ? `There are ${needsCategoryCount} transaction${needsCategoryCount === 1 ? '' : 's'} that still need a category.`
-        : 'All transactions have been assigned a category.';
+        ? t('upload.messageNeedCategory', { count: needsCategoryCount })
+        : t('upload.messageAllAssigned');
 
   return (
-    <div className="card import-summary">
-      <h3>Import summary</h3>
+    <Card className="import-summary">
+      <h3 className="mb-3 text-base font-semibold text-slate-800">{t('upload.importSummary')}</h3>
       <ul className="import-summary-stats">
         <li>
-          <strong>Total transactions:</strong> {totalTransactions}
+          <strong>{t('upload.totalTransactions')}:</strong> {totalTransactions}
         </li>
         <li>
-          <strong>Auto-categorized:</strong> {autoCategorizedCount}
+          <strong>{t('upload.autoCategorized')}:</strong> {autoCategorizedCount}
         </li>
         <li>
-          <strong>Need category:</strong> {needsCategoryCount}
+          <strong>{t('upload.needCategory')}:</strong> {needsCategoryCount}
         </li>
       </ul>
       <p className={needsCategoryCount > 0 ? 'import-summary-message' : 'import-summary-message upload-ok'}>
         {displayMessage}
       </p>
-    </div>
+    </Card>
   );
 }

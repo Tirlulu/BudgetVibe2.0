@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import * as storage from '../storage/categoryStorage.js';
+import { categoryStorage as storage } from '../storage/index.js';
 import { categorySeed } from '../config/categorySeed.js';
 
 const COLOR_PALETTE = [
@@ -47,16 +47,57 @@ function getDefaultIconKey(name) {
   return 'label';
 }
 
+// Seed template color names -> hex (same as resetController)
+const SEED_COLOR_MAP = {
+  blue: '#3B82F6',
+  orange: '#F97316',
+  green: '#22C55E',
+  red: '#EF4444',
+  indigo: '#6366F1',
+  gray: '#6B7280',
+};
+
+function seedColorToHex(colorName) {
+  if (!colorName || typeof colorName !== 'string') return SEED_COLOR_MAP.gray;
+  const key = colorName.toLowerCase().trim();
+  return SEED_COLOR_MAP[key] ?? SEED_COLOR_MAP.gray;
+}
+
+const FIXED_GROUPS = new Set([
+  'הוצאות קבועות',
+  'תקשורת',
+  'דיור ומיסים',
+  'חינוך וילדים',
+  'ביטוחים',
+  'תחבורה',
+  'התחייבויות ועמלות',
+  'Communication',
+  'Housing & Taxes',
+  'Education & Children',
+  'Insurance',
+  'Transport',
+  'Loans & Fees',
+]);
+
+function defaultIsFixedFromGroup(group) {
+  if (!group || typeof group !== 'string') return false;
+  return FIXED_GROUPS.has(group.trim());
+}
+
 function hydrateSeedItem(item, existingCategories) {
+  const group = item.group || '';
+  const isFixed = item.isFixed === true || (item.isFixed !== false && defaultIsFixedFromGroup(group));
   return {
     id: uuidv4(),
     name: item.name,
-    group: item.group || '',
+    group,
     isActive: true,
     color: pickDefaultColor(existingCategories),
     iconKey: getDefaultIconKey(item.name),
     source: 'preset',
     createdAt: new Date().toISOString(),
+    usageCount: 0,
+    isFixed,
   };
 }
 
@@ -70,9 +111,107 @@ function ensureSeed() {
   storage.replaceAll(result);
 }
 
+/**
+ * Flatten seed data (Settings format) into a list of category-like items for merging.
+ * isFixed is taken from each group and set on every item so the frontend can filter by type (Fixed vs Variable).
+ */
+function flattenSeed(seedData) {
+  const flat = [];
+  for (const group of seedData || []) {
+    const groupName = (group.group || group.groupEn || '').trim();
+    const hex = seedColorToHex(group.color);
+    const isFixed = group.isFixed === true;
+    const items = Array.isArray(group.items) ? group.items : [];
+    for (const item of items) {
+      const name = (item.name ?? item.nameEn ?? '').trim();
+      if (!name) continue;
+      flat.push({
+        name,
+        group: groupName,
+        color: hex,
+        iconKey: item.icon ?? 'Tag',
+        isFixed,
+      });
+    }
+  }
+  return flat;
+}
+
+/**
+ * Sync categories.json from Settings seed data. Merges with existing categories by (group, name):
+ * - Match: keep id, usageCount, isActive, createdAt; update name, group, color, iconKey, isFixed.
+ * - No match: new category with new id.
+ * Call after POST /api/settings/seed to keep categories.json in sync with category_seed.json.
+ */
+export function syncCategoriesFromSeed(seedData) {
+  const seed = Array.isArray(seedData) ? seedData : [];
+  const existing = storage.getAll();
+  const now = new Date().toISOString();
+  const merged = [];
+  const flatSeed = flattenSeed(seed);
+
+  for (const item of flatSeed) {
+    const match = existing.find(
+      (c) => (c?.group || '') === item.group && (c?.name || '') === item.name
+    );
+    if (match) {
+      merged.push({
+        ...match,
+        name: item.name,
+        group: item.group,
+        color: item.color,
+        iconKey: item.iconKey,
+        isFixed: item.isFixed,
+        updatedAt: now,
+        source: 'preset',
+      });
+    } else {
+      merged.push({
+        id: uuidv4(),
+        name: item.name,
+        group: item.group,
+        isActive: true,
+        color: item.color,
+        iconKey: item.iconKey,
+        source: 'preset',
+        createdAt: now,
+        updatedAt: now,
+        usageCount: 0,
+        isFixed: item.isFixed,
+      });
+    }
+  }
+
+  storage.replaceAll(merged);
+}
+
+/**
+ * Return all categories sorted by usageCount (desc), then name (asc).
+ * Ensures usageCount is a number for existing data that may lack it.
+ */
 export function findAll() {
   ensureSeed();
-  return storage.getAll();
+  const all = storage.getAll().map((c) => {
+    const usageCount = typeof c.usageCount === 'number' ? c.usageCount : 0;
+    const isFixed = typeof c.isFixed === 'boolean' ? c.isFixed : defaultIsFixedFromGroup(c?.group);
+    return { ...c, usageCount, isFixed };
+  });
+  return all.sort((a, b) => {
+    const uA = a.usageCount ?? 0;
+    const uB = b.usageCount ?? 0;
+    if (uB !== uA) return uB - uA;
+    return (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' });
+  });
+}
+
+/**
+ * Increment usageCount for a category (e.g. when a transaction is assigned to it).
+ */
+export function incrementUsageCount(id) {
+  const existing = storage.getById(id);
+  if (!existing) return null;
+  const next = (typeof existing.usageCount === 'number' ? existing.usageCount : 0) + 1;
+  return storage.update(id, { usageCount: next });
 }
 
 export function findById(id) {
@@ -95,6 +234,8 @@ export function create(body) {
     iconKey: iconKey && typeof iconKey === 'string' ? iconKey : getDefaultIconKey(name),
     source: 'custom',
     createdAt: new Date().toISOString(),
+    usageCount: 0,
+    isFixed: body?.isFixed === true,
   };
   storage.create(category);
   return category;
@@ -103,12 +244,14 @@ export function create(body) {
 export function update(id, payload) {
   const existing = storage.getById(id);
   if (!existing) return null;
-  const allowed = ['name', 'group', 'color', 'iconKey', 'isActive'];
+  const allowed = ['name', 'group', 'color', 'iconKey', 'isActive', 'usageCount', 'isFixed'];
   const updates = {};
   for (const key of allowed) {
     if (payload && key in payload) {
       if (key === 'name' && (payload.name == null || !String(payload.name).trim())) continue;
       if (key === 'isActive') updates[key] = Boolean(payload[key]);
+      else if (key === 'isFixed') updates[key] = Boolean(payload[key]);
+      else if (key === 'usageCount') updates[key] = Math.max(0, Number(payload[key]) || 0);
       else if (key === 'color') updates[key] = /^#[0-9A-Fa-f]{6}$/.test(payload[key]) ? payload[key] : existing.color;
       else updates[key] = payload[key];
     }

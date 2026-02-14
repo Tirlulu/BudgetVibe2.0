@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import * as categoriesService from '../services/categoriesService.js';
 
 export function useCategories() {
@@ -69,10 +69,32 @@ export function useCategories() {
     }
   }, []);
 
+  const data = categories;
+  const options = data;
+
+  const grouped = useMemo(() => {
+    const list = Array.isArray(categories) ? categories : [];
+    const order = [];
+    const byGroup = new Map();
+    for (const c of list) {
+      const g = c?.group ?? '';
+      if (!byGroup.has(g)) {
+        order.push(g);
+        byGroup.set(g, []);
+      }
+      byGroup.get(g).push(c);
+    }
+    return order.map((groupName) => ({ groupName, items: byGroup.get(groupName) || [] }));
+  }, [categories]);
+
   return {
-    categories,
+    data,
+    grouped,
+    options,
+    categories: data,
     isLoading,
     error,
+    refresh: load,
     reload: load,
     createCategory,
     updateCategory,

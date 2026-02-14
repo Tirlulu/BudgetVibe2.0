@@ -1,21 +1,28 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import FiltersBar from '../components/FiltersBar.jsx';
+import PageHeader from '../components/PageHeader.jsx';
+import CardSkeleton from '../components/CardSkeleton.jsx';
+import EmptyState from '../components/EmptyState.jsx';
 import { useAnalytics } from '../hooks/useAnalytics.js';
 import ExpensesByCategoryChart from '../components/Charts/ExpensesByCategoryChart.jsx';
 import ExpensesOverTimeChart from '../components/Charts/ExpensesOverTimeChart.jsx';
 
 export default function AnalyticsPage() {
+  const { t } = useTranslation();
   const [filters, setFilters] = useState({});
   const { data, isLoading, error } = useAnalytics(filters);
 
   return (
     <div className="page analytics-page">
-      <h1>Analytics</h1>
-      <p className="muted">Overview by category, time, and card.</p>
+      <PageHeader title={t('pages.analytics.title')} subtitle={t('pages.analytics.subtitle')} />
       <FiltersBar filters={filters} onChange={setFilters} showCategory />
       {error && <p className="upload-err">{error}</p>}
       {isLoading ? (
-        <p className="muted">Loading…</p>
+        <section className="charts-section">
+          <CardSkeleton />
+          <CardSkeleton />
+        </section>
       ) : data ? (
         <>
           <section className="charts-section">
@@ -23,15 +30,16 @@ export default function AnalyticsPage() {
             <ExpensesOverTimeChart data={Array.isArray(data.byMonth) ? data.byMonth : []} />
           </section>
           {Array.isArray(data.byCategory) && data.byCategory.length > 0 && (
-            <section className="summary-table-section">
-              <h2>Summary by category</h2>
-              <table className="table">
+            <section className="summary-table-section mt-6">
+              <h2 className="mb-3 text-lg font-semibold text-slate-700">{t('analytics.summaryByCategory')}</h2>
+              <div className="overflow-x-auto -mx-1">
+                <table className="table min-w-[400px]">
                 <thead>
                   <tr>
-                    <th>Category</th>
-                    <th>Total</th>
-                    <th>Average</th>
-                    <th>Count</th>
+                    <th>{t('expenses.category')}</th>
+                    <th>{t('analytics.total')}</th>
+                    <th>{t('analytics.average')}</th>
+                    <th>{t('analytics.count')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -44,12 +52,13 @@ export default function AnalyticsPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+                </table>
+              </div>
             </section>
           )}
         </>
       ) : (
-        <p className="muted">No analytics data.</p>
+        <EmptyState icon="📈" message={t('empty.noAnalyticsData')} />
       )}
     </div>
   );
