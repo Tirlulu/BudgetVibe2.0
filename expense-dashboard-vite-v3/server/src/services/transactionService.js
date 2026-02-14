@@ -19,7 +19,11 @@ export function list(filters = {}) {
 export function updateCategory(id, categoryId) {
   const existing = transactionStorage.getById(id);
   if (!existing) return null;
-  const updated = transactionStorage.update(id, { categoryId, manuallyCategorized: true });
+  const updated = transactionStorage.update(id, {
+    categoryId,
+    manuallyCategorized: true,
+    isVerified: true,
+  });
   if (updated && categoryId) {
     categoryService.incrementUsageCount(categoryId);
   }
@@ -31,7 +35,11 @@ export function bulkUpdateCategory(ids, categoryId) {
   for (const id of ids || []) {
     const existing = transactionStorage.getById(id);
     if (existing) {
-      const result = transactionStorage.update(id, { categoryId, manuallyCategorized: true });
+      const result = transactionStorage.update(id, {
+        categoryId,
+        manuallyCategorized: true,
+        isVerified: true,
+      });
       if (result) {
         updated.push(result.id);
         if (categoryId) categoryService.incrementUsageCount(categoryId);

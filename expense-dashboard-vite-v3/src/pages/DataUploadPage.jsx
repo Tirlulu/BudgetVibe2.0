@@ -2,28 +2,22 @@ import React, { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { postImportCreditCard } from '../services/importService.js';
-import ImportSummary from '../components/ImportSummary.jsx';
 import PageHeader from '../components/PageHeader.jsx';
 import EmptyState from '../components/EmptyState.jsx';
 import { Card, Button } from '../ui/index.js';
 
 export default function DataUploadPage() {
   const { t } = useTranslation();
-  const [importResult, setImportResult] = useState(null);
+  const [uploadSummary, setUploadSummary] = useState(null);
   const [uploadError, setUploadError] = useState(null);
   const [uploading, setUploading] = useState(false);
-
-  const totalTransactions = importResult?.totalTransactions ?? 0;
-  const autoCategorizedCount = importResult?.autoCategorizedCount ?? 0;
-  const needsCategoryCount =
-    importResult?.needsCategoryCount ?? importResult?.needsCategory?.length ?? 0;
 
   const handleFileChange = useCallback(
     async (e) => {
       const files = e.target.files;
       if (!files?.length) return;
       setUploadError(null);
-      setImportResult(null);
+      setUploadSummary(null);
       setUploading(true);
       try {
         const formData = new FormData();
@@ -31,7 +25,11 @@ export default function DataUploadPage() {
           formData.append('files', files[i]);
         }
         const result = await postImportCreditCard(formData);
-        setImportResult(result);
+        setUploadSummary({
+          added: result?.added ?? 0,
+          skipped: result?.skipped ?? 0,
+          totalProcessed: result?.totalProcessed ?? 0,
+        });
         window.dispatchEvent(new CustomEvent('expenses-refresh'));
       } catch (err) {
         const message =
@@ -65,23 +63,21 @@ export default function DataUploadPage() {
         {uploadError && <p className="mt-2 text-sm text-red-500">{uploadError}</p>}
       </Card>
 
-      {!importResult && !uploading && !uploadError && (
+      {!uploadSummary && !uploading && !uploadError && (
         <EmptyState icon="📤" message={t('empty.noDataImported')} />
       )}
 
-      {importResult && (
+      {uploadSummary && (
         <Card className="mt-6">
-          <p className="upload-ok mb-4">{t('upload.success')}</p>
-          <ImportSummary
-            totalTransactions={totalTransactions}
-            autoCategorizedCount={autoCategorizedCount}
-            needsCategoryCount={needsCategoryCount}
-          />
-          <p className="mt-4">
-            <Link to="/categorize">
-              <Button>{t('dashboard.goToCategorize')}</Button>
-            </Link>
+          <p className="upload-ok mb-4 text-base font-medium text-slate-800">
+            {t('upload.uploadComplete', {
+              added: uploadSummary.added,
+              skipped: uploadSummary.skipped,
+            })}
           </p>
+          <Link to="/categorize">
+            <Button>{t('dashboard.goToCategorize')}</Button>
+          </Link>
         </Card>
       )}
     </div>

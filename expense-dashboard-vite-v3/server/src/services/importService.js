@@ -1,5 +1,5 @@
 /**
- * Import use case: parse credit card files, persist transactions, return summary.
+ * Import use case: parse credit card files, deduplicate, persist new transactions, return summary.
  * Categorization is delegated to a pluggable categorizer (default: no auto-category) for future ML.
  */
 
@@ -15,30 +15,54 @@ export function setCategorizer(fn) {
   categorizer = typeof fn === 'function' ? fn : async () => null;
 }
 
-function toNeedsCategoryItem(t) {
-  return {
-    id: t.id,
-    merchantName: t.merchantRaw || t.merchant,
-    merchant: t.merchant || t.merchantRaw,
-    amount: t.amount,
-    date: t.purchaseDate,
-    purchaseDate: t.purchaseDate,
-  };
+/**
+ * Build a deduplication signature: isoDate_amount_merchant (sanitized).
+ */
+function buildSignature(isoDate, amount, merchantName) {
+  const date = String(isoDate ?? '').trim().slice(0, 10);
+  const amt = Number(amount);
+  const num = Number.isNaN(amt) ? 0 : amt;
+  const merchant = String(merchantName ?? '').trim().toLowerCase();
+  return `${date}_${num}_${merchant}`;
 }
 
 /**
- * Process uploaded credit card statement files: parse, optionally categorize, persist, return summary.
+ * Process uploaded credit card statement files: parse, deduplicate, persist only new rows, return summary.
  * @param {Array<{ buffer: Buffer, originalname?: string }>} files - Multer file objects
- * @returns {Promise<{ totalTransactions, autoCategorizedCount, needsCategoryCount, needsCategory }>}
+ * @returns {Promise<{ success: boolean, added: number, skipped: number, totalProcessed: number }>}
  */
 export async function processCreditCardUpload(files) {
-  const allTransactions = [];
-  for (const file of files) {
+  const existing = transactionStorage.getAll();
+  const signatureSet = new Set(
+    existing.map((t) =>
+      buildSignature(t.purchaseDate, t.amount, t.merchant ?? t.merchantRaw)
+    )
+  );
+
+  let skippedCount = 0;
+  const newTransactions = [];
+
+  for (const file of files || []) {
     const buffer = file.buffer;
     const card = file.originalname ? file.originalname.replace(/\.[^.]*$/, '') : null;
     const parsed = parseCreditCardExcel(buffer);
     const now = new Date().toISOString();
+
     for (const row of parsed) {
+      const isoDate = (row.purchaseDate || '').toString().slice(0, 10);
+      const signature = buildSignature(
+        row.purchaseDate,
+        row.amount,
+        row.merchant ?? row.merchantRaw
+      );
+
+      if (signatureSet.has(signature)) {
+        skippedCount += 1;
+        continue;
+      }
+
+      signatureSet.add(signature);
+
       const id = uuidv4();
       const tx = {
         id,
@@ -49,29 +73,31 @@ export async function processCreditCardUpload(files) {
         currency: row.currency,
         categoryId: null,
         manuallyCategorized: false,
+        isVerified: false,
         card,
         createdAt: now,
       };
+
       const suggestedCategoryId = await categorizer(tx);
       if (suggestedCategoryId) {
         tx.categoryId = suggestedCategoryId;
       }
-      allTransactions.push(tx);
+
+      newTransactions.push(tx);
     }
   }
 
-  transactionStorage.addMany(allTransactions);
+  if (newTransactions.length > 0) {
+    transactionStorage.addMany(newTransactions);
+  }
 
-  const totalTransactions = allTransactions.length;
-  const autoCategorizedCount = allTransactions.filter((t) => t.categoryId != null).length;
-  const needsCategory = allTransactions.filter((t) => t.categoryId == null).map(toNeedsCategoryItem);
-  const needsCategoryCount = needsCategory.length;
+  const totalProcessed = newTransactions.length + skippedCount;
 
   return {
-    totalTransactions,
-    autoCategorizedCount,
-    needsCategoryCount,
-    needsCategory,
+    success: true,
+    added: newTransactions.length,
+    skipped: skippedCount,
+    totalProcessed,
   };
 }
 
@@ -82,7 +108,11 @@ export async function processCreditCardUpload(files) {
 export async function assignTransactionCategory(transactionId, categoryId) {
   const existing = transactionStorage.getById(transactionId);
   if (!existing) return null;
-  const updated = transactionStorage.update(transactionId, { categoryId, manuallyCategorized: true });
+  const updated = transactionStorage.update(transactionId, {
+    categoryId,
+    manuallyCategorized: true,
+    isVerified: true,
+  });
   if (updated && categoryId) {
     categoryService.incrementUsageCount(categoryId);
   }

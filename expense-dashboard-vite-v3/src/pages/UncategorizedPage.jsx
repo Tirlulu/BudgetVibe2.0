@@ -23,9 +23,13 @@ export default function UncategorizedPage() {
     setLoading(true);
     setError(null);
     try {
-      const txRes = await getTransactions({ uncategorized: 'true', limit: LIMIT });
-      setTransactions(Array.isArray(txRes?.transactions) ? txRes.transactions : []);
-      setTotal(Number(txRes?.total) ?? 0);
+      const txRes = await getTransactions({ limit: LIMIT });
+      const raw = Array.isArray(txRes?.transactions) ? txRes.transactions : [];
+      const filtered = raw.filter(
+        (t) => t?.isVerified !== true || !t?.categoryId
+      );
+      setTransactions(filtered);
+      setTotal(filtered.length);
     } catch (err) {
       setError(err?.message || t('errors.failedToAssign'));
       setTransactions([]);

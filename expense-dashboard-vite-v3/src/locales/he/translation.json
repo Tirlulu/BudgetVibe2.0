@@ -104,6 +104,7 @@
     "uploadFile": "העלאת קובץ",
     "uploading": "מעלה…",
     "success": "ההעלאה הצליחה.",
+    "uploadComplete": "ההעלאה הושלמה. ✅ {{added}} נוספו, ⚠️ {{skipped}} כפילויות הושמטו.",
     "categorizeRemaining": "סווג נותרו ({{count}})",
     "importSummary": "סיכום ייבוא",
     "totalTransactions": "סה\"כ תנועות",

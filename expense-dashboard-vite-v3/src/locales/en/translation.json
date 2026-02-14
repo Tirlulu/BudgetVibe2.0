@@ -104,6 +104,7 @@
     "uploadFile": "Upload file",
     "uploading": "Uploading…",
     "success": "Upload successful.",
+    "uploadComplete": "Upload Complete. ✅ {{added}} Added, ⚠️ {{skipped}} Duplicates ignored.",
     "categorizeRemaining": "Categorize remaining ({{count}})",
     "importSummary": "Import summary",
     "totalTransactions": "Total transactions",
